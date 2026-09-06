@@ -123,3 +123,27 @@ tbody tr:hover { background: #fcfbff; }
 .delete-confirmation > p { font-size: 12px; color: #986363; overflow-wrap: anywhere; }
 .issue-edit { margin-top: 14px; border-top: 1px solid #eeeff3; }
 .issue-edit summary { padding: 14px 0 0; }
+
+.issue-filters { display: grid; grid-template-columns: minmax(180px, 2fr) repeat(3, minmax(110px, 1fr)); gap: 16px; padding: 22px; border-bottom: 1px solid #eff0f5; align-items: end; }
+.issue-filters .field { min-width: 0; }
+.filter-actions { grid-column: 1 / -1; display: flex; gap: 8px; }
+@media(max-width:1000px) { .issue-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media(max-width:640px) { .issue-filters { padding: 18px; gap: 12px; } .issue-search { grid-column: 1 / -1; } }
+
+.account-menu { position: relative; }
+.account-trigger { display: flex; align-items: center; gap: 10px; padding: 5px 8px; border: 1px solid transparent; border-radius: 9px; color: #656477; }
+.account-trigger:hover, .account-trigger[aria-expanded="true"] { background: #f5f3fc; border-color: #e8e4f5; }
+.account-trigger-name { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.account-dropdown { position: absolute; right: 0; top: calc(100% + 10px); z-index: 30; width: min(260px, calc(100vw - 36px)); padding: 6px; background: #fff; border: 1px solid #e7e5ef; border-radius: 10px; box-shadow: 0 8px 28px #24233712; }
+.account-summary { padding: 12px; margin-bottom: 5px; border-bottom: 1px solid #f0eef5; }
+.account-summary p { font-size: 13px; font-weight: 600; color: #504b65; overflow-wrap: anywhere; }
+.account-summary span { display: block; margin-top: 4px; font-size: 11px; color: #92909f; overflow-wrap: anywhere; }
+.account-menu-item { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 11px 12px; border-radius: 6px; text-align: left; font-size: 12px; color: #635b78; }
+.account-menu-item:hover { background: #f5f3fb; }
+.account-logout { color: #ad6464; }
+.account-logout:hover { background: #fff5f5; }
+.profile-panel { max-width: 620px; padding: 28px; }
+.profile-panel-heading { display: flex; align-items: center; gap: 16px; padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid #efedf4; }
+.profile-panel-heading .form-intro { margin: 5px 0 0; }
+.profile-avatar { width: 54px; height: 54px; font-size: 23px; }
+@media(max-width:640px) { .topbar { height: 62px; } .account-trigger-name { display: none; } .account-trigger { padding: 4px; gap: 6px; } .profile-panel { padding: 22px; } }

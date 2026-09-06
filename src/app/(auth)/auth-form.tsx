@@ -1,14 +1,11 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import type { AuthFormState } from "@/lib/validation";
 
 type AuthFormProps = {
-  action: (
-    previousState: AuthFormState,
-    formData: FormData,
-  ) => Promise<AuthFormState>;
+  action: (previousState: AuthFormState, formData: FormData) => Promise<AuthFormState>;
   buttonLabel: string;
   footerHref: string;
   footerLabel: string;
@@ -16,71 +13,16 @@ type AuthFormProps = {
   showName?: boolean;
 };
 
-export function AuthForm({
-  action,
-  buttonLabel,
-  footerHref,
-  footerLabel,
-  footerText,
-  showName = false,
-}: AuthFormProps) {
+export function AuthForm({ action, buttonLabel, footerHref, footerLabel, footerText, showName = false }: AuthFormProps) {
   const [state, formAction, pending] = useActionState(action, {});
-
-  return (
-    <form action={formAction} className="space-y-5">
-      {showName ? (
-        <label className="block text-sm font-medium text-zinc-800">
-          Name
-          <input
-            className="mt-2 w-full rounded-md border border-zinc-300 px-3 py-2 text-base outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
-            name="name"
-            required
-            minLength={2}
-            maxLength={80}
-            autoComplete="name"
-          />
-        </label>
-      ) : null}
-      <label className="block text-sm font-medium text-zinc-800">
-        Email
-        <input
-          className="mt-2 w-full rounded-md border border-zinc-300 px-3 py-2 text-base outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-        />
-      </label>
-      <label className="block text-sm font-medium text-zinc-800">
-        Password
-        <input
-          className="mt-2 w-full rounded-md border border-zinc-300 px-3 py-2 text-base outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
-          name="password"
-          type="password"
-          required
-          minLength={8}
-          maxLength={128}
-          autoComplete={showName ? "new-password" : "current-password"}
-        />
-      </label>
-      {state.error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {state.error}
-        </p>
-      ) : null}
-      <button
-        className="w-full rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
-        type="submit"
-        disabled={pending}
-      >
-        {pending ? "Working..." : buttonLabel}
-      </button>
-      <p className="text-center text-sm text-zinc-600">
-        {footerText}{" "}
-        <Link className="font-medium text-zinc-950 underline" href={footerHref}>
-          {footerLabel}
-        </Link>
-      </p>
-    </form>
-  );
+  const [visible, setVisible] = useState(false);
+  const [values, setValues] = useState({ name: "", email: "", password: "" });
+  return <form action={formAction} className="modern-auth-form">
+    {showName && <label className="auth-field">Full name<input name="name" required minLength={2} maxLength={80} autoComplete="name" placeholder="Alex Morgan" value={values.name} onChange={event => setValues({ ...values, name: event.target.value })} /></label>}
+    <label className="auth-field">Email address<input name="email" type="email" required maxLength={254} autoComplete="email" placeholder="you@example.com" value={values.email} onChange={event => setValues({ ...values, email: event.target.value })} /></label>
+    <div className="auth-field"><label htmlFor="auth-password">Password</label><div className="auth-password-wrap"><input id="auth-password" name="password" type={visible ? "text" : "password"} required minLength={8} maxLength={128} autoComplete={showName ? "new-password" : "current-password"} placeholder={showName ? "Create a strong password" : "Enter your password"} value={values.password} onChange={event => setValues({ ...values, password: event.target.value })} aria-describedby={showName ? "password-help" : undefined} /><button type="button" aria-label={visible ? "Hide password" : "Show password"} aria-pressed={visible} onClick={() => setVisible(!visible)}>{visible ? "Hide" : "Show"}</button></div>{showName && <p id="password-help" className="password-help">Use at least 8 characters.</p>}</div>
+    <div aria-live="polite">{state.error && <p className="auth-error" role="alert">{state.error}</p>}</div>
+    <button className="public-button auth-submit" type="submit" disabled={pending}>{pending ? "Working..." : buttonLabel}<span aria-hidden="true">&#8594;</span></button>
+    <p className="auth-switch">{footerText} <Link href={footerHref}>{footerLabel}</Link></p>
+  </form>;
 }
