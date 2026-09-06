@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bug Tracker",
-  description: "A portfolio-quality issue tracker built with Next.js.",
+  title: "Tracebit | Simple issue tracking",
+  description: "A clear home for your projects, bugs, features, and tasks.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

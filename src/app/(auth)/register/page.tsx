@@ -15,7 +15,7 @@ export default async function RegisterPage() {
       <section className="w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
         <h1 className="text-2xl font-semibold text-zinc-950">Create account</h1>
         <p className="mt-2 text-sm text-zinc-600">
-          Start with a secure local account.
+          Create your personal Tracebit workspace.
         </p>
         <div className="mt-6">
           <AuthForm

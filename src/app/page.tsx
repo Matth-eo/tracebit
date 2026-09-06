@@ -13,13 +13,13 @@ export default async function Home() {
     <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-6 py-12">
       <section className="w-full max-w-xl text-center">
         <p className="text-sm font-medium uppercase tracking-wide text-zinc-500">
-          Bug Tracker
+          Tracebit
         </p>
         <h1 className="mt-3 text-4xl font-semibold text-zinc-950">
-          Issue tracking starts with secure access.
+          Less friction. More progress.
         </h1>
         <p className="mt-4 text-base leading-7 text-zinc-600">
-          Register or log in to reach the protected dashboard.
+          Bring your projects, bugs, features, and tasks together in one simple workspace.
         </p>
         <div className="mt-8 flex justify-center gap-3">
           <Link

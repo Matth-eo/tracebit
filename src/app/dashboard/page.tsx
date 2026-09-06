@@ -1,44 +1,23 @@
-import { redirect } from "next/navigation";
-import { logout } from "@/app/(auth)/actions";
-import { ProjectForm } from "@/app/dashboard/project-form";
-import { getCurrentUser } from "@/lib/auth";
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/workspace";
+import { EmptyState, IssueTable, PageHeading, ProjectCards } from "@/components/workspace-ui";
 
 export default async function DashboardPage() {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  return (
-    <main className="min-h-screen bg-zinc-50 px-6 py-10">
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between border-b border-zinc-200 pb-6">
-        <div>
-          <p className="text-sm font-medium text-zinc-500">Dashboard</p>
-          <h1 className="mt-1 text-3xl font-semibold text-zinc-950">
-            Welcome, {user.name}
-          </h1>
-        </div>
-        <form action={logout}>
-          <button
-            className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 transition hover:bg-zinc-100"
-            type="submit"
-          >
-            Log out
-          </button>
-        </form>
-      </div>
-      <section className="mx-auto mt-10 w-full max-w-5xl">
-        <div className="max-w-xl rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-zinc-950">Create a project</h2>
-            <p className="mt-1 text-sm text-zinc-600">
-              Projects are private to your account for now.
-            </p>
-          </div>
-          <ProjectForm />
-        </div>
-      </section>
-    </main>
-  );
+  const user = await requireUser();
+  const owned = { project: { ownerId: user.id } };
+  const [total, open, progress, done, projects, issues] = await Promise.all([
+    prisma.project.count({ where: { ownerId: user.id } }),
+    prisma.issue.count({ where: { ...owned, status: { not: "DONE" } } }),
+    prisma.issue.count({ where: { ...owned, status: "IN_PROGRESS" } }),
+    prisma.issue.count({ where: { ...owned, status: "DONE" } }),
+    prisma.project.findMany({ where: { ownerId: user.id }, orderBy: { createdAt: "desc" }, take: 3, include: { _count: { select: { issues: true } } } }),
+    prisma.issue.findMany({ where: owned, orderBy: { createdAt: "desc" }, take: 6, include: { project: { select: { name: true } } } }),
+  ]);
+  return <>
+    <PageHeading eyebrow="YOUR WORK, AT A GLANCE" title={`Welcome back, ${user.name.split(" ")[0]}`} description="A clear view of your projects and what needs your attention." action={<Link className="button" href="/dashboard/projects#new-project"><span aria-hidden="true">+</span> New project</Link>} />
+    <div className="stats-grid">{[["Total Projects", total, "All your workspaces", "\u25a1"], ["Open Issues", open, "Todo and in progress", "\u25c9"], ["In Progress", progress, "Work in motion", "\u25d0"], ["Completed", done, "Issues marked done", "\u2713"]].map(([label, value, detail, icon], index) => <div className="stat-card" key={label}><div className="stat-label">{label}<span className={`stat-icon tone-${index % 3}`} aria-hidden="true">{icon}</span></div><p className="stat-value">{value}</p><p className="stat-detail">{detail}</p></div>)}</div>
+    <section className="section"><div className="section-heading"><div><h2>Recent Projects</h2><p>Your latest spaces to make things happen.</p></div><Link className="text-link" href="/dashboard/projects">View all projects <span aria-hidden="true">&#8599;</span></Link></div>{projects.length ? <ProjectCards projects={projects} /> : <div className="panel"><EmptyState title="Your next project starts here" description="Create a project to bring your bugs, features, and tasks together." href="/dashboard/projects#new-project" label="Create your first project" /></div>}</section>
+    <section className="section panel"><div className="section-heading panel-heading"><div><h2>Recent Issues</h2><p>The latest additions across your projects.</p></div><Link className="text-link" href="/dashboard/issues">View all issues <span aria-hidden="true">&#8599;</span></Link></div>{issues.length ? <IssueTable issues={issues} /> : <EmptyState title="A clean slate" description="Issues you create in your projects will appear here." href="/dashboard/projects" label="Go to projects" />}</section>
+  </>;
 }

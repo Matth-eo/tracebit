@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tracebit
 
-## Getting Started
+A simple, private issue tracker built with Next.js 16, React 19, Tailwind CSS 4, Prisma, and PostgreSQL. Uses the existing email/password authentication and database-backed session cookies.
 
-First, run the development server:
+## Local setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Install dependencies: `npm install`.
+2. Set `DATABASE_URL` and `AUTH_SECRET` in `.env` (do not commit secrets).
+3. Generate the client: `npx prisma generate`.
+4. Apply migrations: `npx prisma migrate deploy`.
+5. Start the app: `npm run dev`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Project-to-issue flow
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Register or log in, then open Projects from the sidebar. Create a project to go directly to its detail page. Create issues with a title, optional description, type (Bug/Feature/Task), status (Todo/In Progress/Done), and priority (Low/Medium/High). Use Save status on an issue to move work forward. Expand Edit issue to edit all fields, or use Delete issue and confirm to remove it. Expand Edit project to rename the project, update its description, or delete it. Project deletion also deletes its issues and returns you to Projects. Every mutation refreshes dashboard and list data. Omitted issue descriptions are stored as empty strings using the existing schema; no additional migration is required.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The dashboard shows project totals, open issues (Todo + In Progress), in-progress issues, completed issues, and the newest projects/issues. Issues lists all of your issues and links back to the corresponding project and issue.
 
-## Learn More
+Projects belong to the authenticated user. Issue access is checked through the parent project's owner in server-side reads and mutations. Foreign project URLs return 404. No membership or collaboration features are included.
 
-To learn more about Next.js, take a look at the following resources:
+## Verification
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `npm run lint`
+- `npm run build`
+- `node --test tests/issue-actions.test.cjs` (12 tests covering authentication, ownership, create/edit validation, optional descriptions, deletion, failed writes, and status mutation guards)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Main files
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `prisma/schema.prisma` and `prisma/migrations/20260906150000_add_issues/migration.sql`: issue model, enums, index, and project relation.
+- `src/app/dashboard/layout.tsx`, `src/components/`, `src/app/globals.css`: responsive workspace shell and shared UI.
+- `src/app/dashboard/page.tsx`: owner-scoped dashboard totals and recent work.
+- `src/app/dashboard/projects/`: project list and project detail pages.
+- `src/app/dashboard/actions.ts`: authenticated project creation, editing, deletion, and redirects.
+- `src/app/dashboard/issues/`: all-issues page, issue forms, and guarded server actions.
+- `src/lib/auth.ts`, `src/lib/workspace.ts`: existing session lookup and authenticated page guard.

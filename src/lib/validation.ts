@@ -1,3 +1,4 @@
+import { IssuePriority, IssueStatus, IssueType } from "@prisma/client";
 export type AuthFormState = {
   error?: string;
 };
@@ -46,4 +47,19 @@ export function validateProjectDescription(value: FormDataEntryValue | null) {
   }
 
   return { value: description || null };
+}
+
+export function validateIssue(data: FormData) {
+  const title = String(data.get("title") ?? "").trim();
+  const description = String(data.get("description") ?? "").trim();
+  const type = String(data.get("type")) as IssueType;
+  const status = String(data.get("status")) as IssueStatus;
+  const priority = String(data.get("priority")) as IssuePriority;
+  if (title.length < 2 || title.length > 160) return { error: "Title must be between 2 and 160 characters." };
+  if (description.length > 5000) return { error: "Description must be 5,000 characters or fewer." };
+  if (!Object.values(IssueType).includes(type) || !Object.values(IssueStatus).includes(status) || !Object.values(IssuePriority).includes(priority)) {
+    return { error: "Choose a valid type, status, and priority." };
+  }
+  // An omitted description is stored as an empty string in the existing schema.
+  return { value: { title, description, type, status, priority } };
 }
